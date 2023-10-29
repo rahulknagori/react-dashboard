@@ -1,4 +1,4 @@
-import { Box, styled, TextField, FormControlLabel } from "@mui/material";
+import { styled, Box, TextField, FormControlLabel } from "@mui/material";
 
 const AuthContainer = styled(Box)(({}) => ({
   backgroundColor: "#178288",

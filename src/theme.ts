@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material";
+import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
   palette: {
@@ -72,6 +72,15 @@ const theme = createTheme({
         root: {
           border: "none",
           fontWeight: 600,
+        },
+      },
+    },
+    MuiCardContent: {
+      styleOverrides: {
+        root: {
+          "&:last-child": {
+            paddingBottom: "16px",
+          },
         },
       },
     },

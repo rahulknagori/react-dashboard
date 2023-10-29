@@ -1,4 +1,4 @@
-import { Box, Button, Stack, Typography, Checkbox } from "@mui/material";
+import { Button, Box, Stack, Typography, Checkbox } from "@mui/material";
 import {
   AuthCard,
   AuthTextField,
