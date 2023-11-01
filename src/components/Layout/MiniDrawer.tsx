@@ -13,16 +13,16 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Avatar,
 } from "@mui/material";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTable, faUser } from "@fortawesome/free-solid-svg-icons";
 
 import {
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
-  MoveToInbox as InboxIcon,
-  Mail as MailIcon,
 } from "@mui/icons-material";
+import UserProfileAvatar from "./UserProfileAvatar";
 
 const drawerWidth = 240;
 
@@ -125,7 +125,7 @@ export default function MiniDrawer({ children }) {
             <MenuIcon />
           </IconButton>
 
-          <Avatar sx={{ bgcolor: "#32a852", cursor: "pointer" }}>R</Avatar>
+          <UserProfileAvatar />
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
@@ -140,7 +140,7 @@ export default function MiniDrawer({ children }) {
         </DrawerHeader>
         <Divider />
         <List>
-          {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
+          {["Data", "Users", "AI"].map((text, index) => (
             <ListItem key={text} disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 sx={{
@@ -156,7 +156,11 @@ export default function MiniDrawer({ children }) {
                     justifyContent: "center",
                   }}
                 >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  {index % 2 === 0 ? (
+                    <FontAwesomeIcon icon={faTable} />
+                  ) : (
+                    <FontAwesomeIcon icon={faUser} />
+                  )}
                 </ListItemIcon>
                 <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
               </ListItemButton>
