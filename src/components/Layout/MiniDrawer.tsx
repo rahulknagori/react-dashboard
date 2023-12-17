@@ -52,7 +52,6 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "flex-end",
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
 
@@ -96,10 +95,10 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 type Props = {
-  children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
-export default function MiniDrawer({ children }:Props) {
+export default function MiniDrawer({ children }: Props) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 

@@ -1,19 +1,24 @@
-import { useState } from "react";
-import { Grid, Box, FormLabel } from "@mui/material";
+import { Fragment, useEffect, useState } from "react";
+import { Grid, Box, FormLabel, Button, CircularProgress } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import { CloudUpload } from "@mui/icons-material";
 import { MuiIconBtn, MuiInput } from "../../assets/global.style";
 import HomeTable from "./HomeTable";
 import SearchBox from "../../components/SearchBox";
 import Sidebar from "../../components/Sidebar";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { pageMetaDataT, ProductT } from "../../utils/types/Producttypes";
 
 const filterData = [
   {
     id: 1,
-    label: "Calorie",
+    label: "Country",
   },
   {
     id: 1,
-    label: "Fat",
+    label: "Item",
   },
 ];
 
@@ -23,6 +28,15 @@ const Home: React.FC = () => {
     left: false,
     bottom: false,
     right: false,
+  });
+
+  const [products, setProducts] = useState<ProductT[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [pageMetaData, setPageMetaData] = useState<pageMetaDataT>({
+    totalRecords: 0,
+    totalPages: 0,
+    currentPage: 0,
+    pageSize: 10,
   });
 
   const onFilterBtnClick =
@@ -41,23 +55,118 @@ const Home: React.FC = () => {
       });
     };
 
-  return (
+  const getProducts = async (currentPage = 0, pageSize = 10) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/products?page=${currentPage}&pageSize=${pageSize}`
+      );
+
+      if (response.status === 200) {
+        setProducts(response.data.data);
+        setPageMetaData(response.data.metadata);
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(error.message);
+      }
+    }
+  };
+
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!event.target.files) {
+      toast.error("Upload a file");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("file", event.target.files[0]);
+
+      const response = await axios.post(
+        "http://localhost:8000/products/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (response.status === 201) {
+        setLoading(false);
+        getProducts(pageMetaData.currentPage, pageMetaData.pageSize);
+        toast.success(response.data.message);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
+    }
+  };
+
+  useEffect(() => {
+    getProducts(pageMetaData.currentPage, pageMetaData.pageSize);
+  }, []);
+
+  return loading ? (
+    <Box sx={{ display: "flex", justifyContent: "center", mt: 20 }}>
+      <CircularProgress />
+    </Box>
+  ) : (
     <div>
+      <ToastContainer />
       <Grid container alignItems={"end"} spacing={2} mb={2}>
-        <Grid item xs={11}>
+        <Grid item xs={4}>
           <SearchBox />
         </Grid>
-        <Grid item xs={1}>
-          <MuiIconBtn
-            onClick={onFilterBtnClick("right", true)}
-            sx={{ float: "right" }}
-            variant="contained"
-          >
-            <FilterAltIcon />
-          </MuiIconBtn>
+        <Grid item xs={8}>
+          <Box display="flex" gap={3} sx={{ float: "right" }}>
+            <div>
+              <input
+                type="file"
+                accept=".xlsx"
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+                id="fileInput"
+              />
+              {/* Button to trigger file input */}
+              <label htmlFor="fileInput">
+                <Button
+                  variant="contained"
+                  component="span"
+                  startIcon={<CloudUpload />}
+                >
+                  Upload Excel File
+                </Button>
+              </label>
+            </div>
+            <Box>
+              <MuiIconBtn
+                onClick={onFilterBtnClick("right", true)}
+                variant="contained"
+              >
+                <FilterAltIcon />
+              </MuiIconBtn>
+            </Box>
+          </Box>
         </Grid>
       </Grid>
-      <HomeTable />
+      {products.length > 0 ? (
+        <HomeTable
+          refetchApi={getProducts}
+          rows={products}
+          pageMetaData={pageMetaData}
+          setPageMetaData={setPageMetaData}
+        />
+      ) : (
+        <p style={{ textAlign: "center" }}>No records to show</p>
+      )}
       <Sidebar
         openSidebar={openRSidebar}
         toggleDrawer={onFilterBtnClick}
@@ -66,7 +175,7 @@ const Home: React.FC = () => {
         <Box p={2}>
           {filterData.map((item: (typeof filterData)[0]) => {
             return (
-              <>
+              <Fragment key={item.id}>
                 <FormLabel component={"legend"} sx={{ mb: 1, fontWeight: 600 }}>
                   {item.label}
                 </FormLabel>
@@ -76,7 +185,7 @@ const Home: React.FC = () => {
                   fullWidth
                   size="small"
                 />
-              </>
+              </Fragment>
             );
           })}
         </Box>
