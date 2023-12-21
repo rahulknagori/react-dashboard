@@ -180,7 +180,6 @@ export default function HomeTable({
   rows,
   pageMetaData,
   setPageMetaData,
-  refetchApi,
 }: Props) {
   const [order, setOrder] = React.useState<Order>("asc");
   const [orderBy, setOrderBy] = React.useState<keyof Data>("code");
