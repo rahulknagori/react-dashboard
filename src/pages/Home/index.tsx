@@ -9,7 +9,7 @@ import Sidebar from "../../components/Sidebar";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { pageMetaDataT, ProductT } from "../../utils/types/Producttypes";
+import { pageMetaDataT, ProductT } from "../../utils/types/productTypes";
 
 const filterData = [
   {
@@ -58,7 +58,9 @@ const Home: React.FC = () => {
   const getProducts = async (currentPage = 0, pageSize = 10) => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/products?page=${currentPage}&pageSize=${pageSize}`
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/products?page=${currentPage}&pageSize=${pageSize}`
       );
 
       if (response.status === 200) {
@@ -90,7 +92,7 @@ const Home: React.FC = () => {
       formData.append("file", event.target.files[0]);
 
       const response = await axios.post(
-        "http://localhost:8000/products/upload",
+        `${import.meta.env.VITE_BASE_URL}/products/upload`,
         formData,
         {
           headers: {
@@ -112,7 +114,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     getProducts(pageMetaData.currentPage, pageMetaData.pageSize);
-  }, []);
+  }, [pageMetaData.currentPage, pageMetaData.pageSize]);
 
   return loading ? (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 20 }}>

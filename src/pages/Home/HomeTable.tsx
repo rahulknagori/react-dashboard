@@ -15,7 +15,7 @@ import {
   Switch,
 } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
-import { ProductT, pageMetaDataT } from "../../utils/types/Producttypes";
+import { ProductT, pageMetaDataT } from "../../utils/types/productTypes";
 
 interface Data {
   code: string;
@@ -230,8 +230,6 @@ export default function HomeTable({
       ...prev,
       currentPage: newPage,
     }));
-
-    refetchApi(newPage, pageMetaData.pageSize);
   };
 
   const handleChangeRowsPerPage = (
@@ -241,7 +239,6 @@ export default function HomeTable({
       ...prev,
       pageSize: parseInt(event.target.value),
     }));
-    refetchApi(pageMetaData.currentPage, parseInt(event.target.value));
   };
 
   const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
