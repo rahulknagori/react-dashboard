@@ -1,19 +1,24 @@
-import { useState } from "react";
 import { Card, CardContent } from "@mui/material";
 import { MuiInput } from "../assets/global.style";
+import { debounce } from "../utils/helper";
 
-const SearchBox = () => {
-  const [value, setValue] = useState<string>("");
+type Props = {
+  cb: (searchTerm: string) => void;
+};
+
+const SearchBox = ({ cb }: Props) => {
+  const debouncedSearch = debounce((searchTerm: string) => {
+    cb(searchTerm);
+  }, 500);
 
   const onSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(event.target.value);
+    debouncedSearch(event.target.value);
   };
 
   return (
     <Card sx={{ minWidth: 275, maxWidth: 400 }}>
       <CardContent>
         <MuiInput
-          value={value}
           onChange={onSearch}
           fullWidth
           label="Search Code"

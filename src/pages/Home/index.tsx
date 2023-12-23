@@ -112,6 +112,31 @@ const Home: React.FC = () => {
     }
   };
 
+  const fetchSearchProducts = async (searchTerm: string) => {
+    let endpoint = `products/search?code=${encodeURIComponent(
+      searchTerm.trim()
+    )}`;
+    if (searchTerm.trim() === "") {
+      endpoint = "products";
+    }
+
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/${endpoint}`
+      );
+
+      if (response.status === 200) {
+        setProducts(response.data.data);
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
+    }
+  };
+
   useEffect(() => {
     getProducts(pageMetaData.currentPage, pageMetaData.pageSize);
   }, [pageMetaData.currentPage, pageMetaData.pageSize]);
@@ -125,10 +150,10 @@ const Home: React.FC = () => {
       <ToastContainer />
       <Grid container alignItems={"end"} spacing={2} mb={2}>
         <Grid item xs={4}>
-          <SearchBox />
+          <SearchBox cb={fetchSearchProducts} />
         </Grid>
         <Grid item xs={8}>
-          <Box display="flex" gap={3} sx={{ float: "right" }}>
+          <Box display="flex" gap={2.3} sx={{ float: "right" }}>
             <div>
               <input
                 type="file"
@@ -137,7 +162,6 @@ const Home: React.FC = () => {
                 style={{ display: "none" }}
                 id="fileInput"
               />
-              {/* Button to trigger file input */}
               <label htmlFor="fileInput">
                 <Button
                   variant="contained"
