@@ -318,7 +318,7 @@ export default function HomeTable({
               rowCount={rows.length}
             />
             <TableBody>
-              {visibleRows.map((row: ProductT, index: number) => {
+              {visibleRows.map((row: any, index: number) => {
                 const isItemSelected = isSelected(row._id);
                 const labelId = `enhanced-table-checkbox-${index}`;
 
