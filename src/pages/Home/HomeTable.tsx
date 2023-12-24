@@ -211,16 +211,20 @@ type Props = {
   pageMetaData: pageMetaDataT;
   setPageMetaData: React.Dispatch<React.SetStateAction<pageMetaDataT>>;
   refetchApi: (currentPage: number, pageSize: number) => void;
+  selectedRows: number[];
+  setSelectedRows: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 export default function HomeTable({
   rows,
   pageMetaData,
   setPageMetaData,
+  refetchApi,
+  selectedRows,
+  setSelectedRows,
 }: Props) {
   const [order, setOrder] = React.useState<Order>("asc");
   const [orderBy, setOrderBy] = React.useState<keyof Data>("code");
-  const [selected, setSelected] = React.useState<readonly number[]>([]);
   const [dense, setDense] = React.useState(false);
 
   const handleRequestSort = (
@@ -235,29 +239,29 @@ export default function HomeTable({
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = rows.map((n: ProductT) => n._id);
-      setSelected(newSelected);
+      setSelectedRows(newSelected);
       return;
     }
-    setSelected([]);
+    setSelectedRows([]);
   };
 
   const handleClick = (_event: React.MouseEvent<unknown>, id: number) => {
-    const selectedIndex = selected.indexOf(id);
-    let newSelected: readonly number[] = [];
+    const selectedIndex = selectedRows.indexOf(id);
+    let newSelected: number[] = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
+      newSelected = newSelected.concat(selectedRows, id);
     } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
+      newSelected = newSelected.concat(selectedRows.slice(1));
+    } else if (selectedIndex === selectedRows.length - 1) {
+      newSelected = newSelected.concat(selectedRows.slice(0, -1));
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
+        selectedRows.slice(0, selectedIndex),
+        selectedRows.slice(selectedIndex + 1)
       );
     }
-    setSelected(newSelected);
+    setSelectedRows(newSelected);
   };
 
   const handleChangePage = (_event: unknown, newPage: number) => {
@@ -265,6 +269,8 @@ export default function HomeTable({
       ...prev,
       currentPage: newPage,
     }));
+
+    refetchApi(newPage, pageMetaData.pageSize);
   };
 
   const handleChangeRowsPerPage = (
@@ -274,13 +280,14 @@ export default function HomeTable({
       ...prev,
       pageSize: parseInt(event.target.value),
     }));
+    refetchApi(pageMetaData.currentPage, parseInt(event.target.value));
   };
 
   const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDense(event.target.checked);
   };
 
-  const isSelected = (id: number) => selected.indexOf(id) !== -1;
+  const isSelected = (id: number) => selectedRows.indexOf(id) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -292,12 +299,8 @@ export default function HomeTable({
       : 0;
 
   const visibleRows = React.useMemo(
-    () =>
-      stableSort(rows, getComparator(order, orderBy)).slice(
-        pageMetaData.currentPage * pageMetaData.pageSize,
-        pageMetaData.currentPage * pageMetaData.pageSize + pageMetaData.pageSize
-      ),
-    [order, orderBy, pageMetaData.currentPage, pageMetaData.pageSize]
+    () => stableSort(rows, getComparator(order, orderBy)),
+    [order, orderBy, rows]
   );
 
   return (
@@ -310,7 +313,7 @@ export default function HomeTable({
             size={dense ? "small" : "medium"}
           >
             <EnhancedTableHead
-              numSelected={selected.length}
+              numSelected={selectedRows.length}
               order={order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}

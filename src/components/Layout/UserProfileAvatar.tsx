@@ -69,7 +69,7 @@ export default function UserProfileAvatar() {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleClose}>
+        <MenuItem disabled onClick={handleClose}>
           <Avatar /> Account
         </MenuItem>
         <Divider />
